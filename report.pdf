@@ -1,0 +1,23 @@
+System.out.println("\nЗадание 8.5: Тест output/input");
+        try {
+            TabulatedFunction tabLog = TabulatedFunctions.tabulate(new Log(Math.E), 1, 10, 10);
+            
+            // Запись в файл
+            OutputStream out = new FileOutputStream("Табулированный-log.dat");
+            TabulatedFunctions.outputTabulatedFunction(tabLog, out);
+            out.close();
+            
+            // Чтение из файла
+            InputStream in = new FileInputStream("Табулированный-log.dat");
+            TabulatedFunction readLog = TabulatedFunctions.inputTabulatedFunction(in);
+            in.close();
+
+            // Сравнение
+            System.out.println("Сравнение исходной и считанной c файла функции:");
+            for (double x = 1; x <= 10; x += 1) {
+                System.out.printf("x=%.1f, Orig(x)=%.2f, Read(x)=%.2f\n", x, tabLog.getFunctionValue(x), readLog.getFunctionValue(x));
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
