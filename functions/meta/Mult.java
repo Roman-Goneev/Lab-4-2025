@@ -17,6 +17,6 @@ public class Mult implements Function {
         return right;
     }
     public double getFunctionValue(double x) {
-        return f1.getMuFunctionValue(x) * f2.getFunctionValue(x);
+        return f1.getFunctionValue(x) * f2.getFunctionValue(x);
     }
 }

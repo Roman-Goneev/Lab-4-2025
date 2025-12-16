@@ -51,8 +51,8 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Externali
     // Конструктор из ЛР 2 и 3
     public LinkedListTabulatedFunction(double leftX, double rightX, double[] values) {
         if (leftX >= rightX || values.length < 2) {
-            throw new IllegalArgumentException("Недопустимые аргументы для создания функции);
-        }т
+            throw new IllegalArgumentException("Недопустимые аргументы для создания функции");
+        }
         this.count = values.length;
         this.head = new FunctionNode();
         this.head.prev = head;

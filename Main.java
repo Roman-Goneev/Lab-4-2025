@@ -2,6 +2,7 @@ import functions.*;
 import functions.basic.*;
 import functions.meta.Power;
 import java.io.*;
+import functions.basic.IdentityFunction;
 
 public class Main {
 
@@ -50,7 +51,7 @@ public class Main {
             // Сравнение
             System.out.println("Сравнение исходной и считанной с файла функции:");
             for (double x = 0; x <= 10; x += 1) {
-                System.out.printf("x=%.1f, Orig(x)=%.2f, Read(x)=%.2f\n", x, tabExp.getFunctionValue(x), readExp.getFunctionValue(x));
+                System.out.printf("x=%.2f, Orig(x)=%.6f, Read(x)=%.6f\n", x, tabExp.getFunctionValue(x), readExp.getFunctionValue(x));
             }
             
         } catch (IOException e) {
@@ -75,7 +76,7 @@ public class Main {
             // Сравнение
             System.out.println("Сравнение исходной и считанной c файла функции:");
             for (double x = 1; x <= 10; x += 1) {
-                System.out.printf("x=%.1f, Orig(x)=%.2f, Read(x)=%.2f\n", x, tabLog.getFunctionValue(x), readLog.getFunctionValue(x));
+                System.out.printf("x=%.2f, Orig(x)=%.6f, Read(x)=%.6f\n", x, tabLog.getFunctionValue(x), readLog.getFunctionValue(x));
             }
             
         } catch (IOException e) {
@@ -103,7 +104,7 @@ public class Main {
             // Сравнение
             System.out.println("Сравнение исходной и десериализованной функции: ");
             for (double x = 0; x <= 10; x += 1) {
-                System.out.printf("x=%.1f, Orig(x)=%.2f, Read(x)=%.2f\n", x, tabFunc.getFunctionValue(x), readFunc.getFunctionValue(x));
+                System.out.printf("x=%.2f, Orig(x)=%.6f, Read(x)=%.6f\n", x, tabFunc.getFunctionValue(x), readFunc.getFunctionValue(x));
             }
 
         } catch (IOException | ClassNotFoundException e) {
@@ -114,11 +115,7 @@ public class Main {
         System.out.println("\nЗадание 9: Тест Сериализации - Экстернализация, LinkedListTabulatedFunction");
         try {
             // Создаем функцию f(x) = x^2
-            Function sqr = new Power(new Function() {
-                public double getLeftDomainBorder() { return Double.NEGATIVE_INFINITY; }
-                public double getRightDomainBorder() { return Double.POSITIVE_INFINITY; }
-                public double getFunctionValue(double x) { return x; }
-            }, 2);
+            Function sqr = new Power(new IdentityFunction(), 2);
             
             // Создаем табулированную функцию на основе LinkedListTabulatedFunction
             double[] values = {0, 1, 4, 9, 16};
@@ -129,13 +126,13 @@ public class Main {
                  System.out.printf("Point %d: (%.1f, %.1f)\n", i, tabFuncLinked.getPointX(i), tabFuncLinked.getPointY(i));
             }
 
-            // Сериализация (запись объекта)
+            // Сериализация
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("Сериализованный-linkedlist.ser"));
             out.writeObject(tabFuncLinked);
             out.close();
 
-            // Десериализация (чтение объекта)
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("Сериализованныйlinkedlist.ser"));
+            // Десериализация
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("Сериализованный-linkedlist.ser"));
             TabulatedFunction readFuncLinked = (TabulatedFunction) in.readObject();
             in.close();
 
@@ -148,5 +145,34 @@ public class Main {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+        // Добавил отдельный блок
+        System.out.println("\nДоп. тест Externalizable: LinkedList с ln(exp(x))");
+        try {
+            java.util.LinkedList<Double> list = new java.util.LinkedList<>();
+            for (double x = -5.0; x <= 5.0; x += 0.5) {
+                list.add(Math.log(Math.exp(x)));
+            }
+
+            try (ObjectOutputStream out = new ObjectOutputStream(
+                    new FileOutputStream("list-ln-exp.ser"))) {
+                out.writeObject(list);
+            }
+
+            java.util.LinkedList<Double> readList;
+            try (ObjectInputStream in = new ObjectInputStream(
+                    new FileInputStream("list-ln-exp.ser"))) {
+                readList = (java.util.LinkedList<Double>) in.readObject();
+            }
+
+            double x = -5.0;
+            for (Double y : readList) {
+                System.out.printf("x = %.6f, ln(exp(x)) = %.6f%n", x, y);
+                x += 0.5;
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
