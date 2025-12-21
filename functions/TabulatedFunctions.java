@@ -22,10 +22,11 @@ public class TabulatedFunctions {
         }
         // Возвращаем объект одного из классов, реализующих интерфейс
         return new ArrayTabulatedFunction(points); 
-        // Можно вернуть и LinkedListTabulatedFunction, по заданию это не важно
+        // Можно вернуть и LinkedListTabulatedFunction
     }
 
     // Задание 7
+    // Метод вывода табулированной функции в байтовый поток
     public static void outputTabulatedFunction(TabulatedFunction function, OutputStream out) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
         dos.writeInt(function.getPointsCount());
@@ -33,9 +34,10 @@ public class TabulatedFunctions {
             dos.writeDouble(function.getPointX(i));
             dos.writeDouble(function.getPointY(i));
         }
-        dos.flush(); // Принудительно записываем буфер
+        dos.flush(); // Принудительно записываем
     }
 
+    // Метод ввода табулированной функции из байтового потока
     public static TabulatedFunction inputTabulatedFunction(InputStream in) throws IOException {
         DataInputStream dis = new DataInputStream(in);
         int count = dis.readInt();
@@ -46,7 +48,7 @@ public class TabulatedFunctions {
         return new ArrayTabulatedFunction(points);
     }
 
-    // Задание 7
+    // Метод записи табулированной функции в символьный поток
     public static void writeTabulatedFunction(TabulatedFunction function, Writer out) throws IOException {
         PrintWriter pw = new PrintWriter(out);
         pw.println(function.getPointsCount());
@@ -56,6 +58,7 @@ public class TabulatedFunctions {
         pw.flush();
     }
 
+    // Метод чтения табулированной функции из символьного потока
     public static TabulatedFunction readTabulatedFunction(Reader in) throws IOException {
         StreamTokenizer tokenizer = new StreamTokenizer(in);
         tokenizer.nextToken();

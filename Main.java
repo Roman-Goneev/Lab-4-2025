@@ -15,26 +15,26 @@ public class Main {
         for (double x = 0; x <= Math.PI; x += 0.1) {
             System.out.printf("x=%.1f, sin(x)=%.4f, cos(x)=%.4f\n", x, sin.getFunctionValue(x), cos.getFunctionValue(x));
         }
-
+        
         // Задание 8, 2: Табулирование sin и cos
-        System.out.println("\nЗадание 8.2: Табулирование sin и cos (5 точек) ");
-        TabulatedFunction tabSin = TabulatedFunctions.tabulate(sin, 0, Math.PI, 10);
-        TabulatedFunction tabCos = TabulatedFunctions.tabulate(cos, 0, Math.PI, 10);
+        System.out.println("\nЗадание 8.2: Табулирование sin и cos, 5 точек ");
+        TabulatedFunction sintab = TabulatedFunctions.tabulate(sin, 0, Math.PI, 10);
+        TabulatedFunction costab = TabulatedFunctions.tabulate(cos, 0, Math.PI, 10);
         for (double x = 0; x <= Math.PI; x += 0.1) {
-            System.out.printf("x=%.1f, tabSin(x)=%.4f, tabCos(x)=%.4f\n", x, tabSin.getFunctionValue(x), tabCos.getFunctionValue(x));
+            System.out.printf("x=%.1f, sintab(x)=%.4f, costab(x)=%.4f\n", x, sintab.getFunctionValue(x), costab.getFunctionValue(x));
         }
 
         // Задание 8, п.3: Сумма квадратов
-        System.out.println("\nRj Задание 8.3: Сумма квадратов (sin^2 + cos^2)");
-        Function sinSqr = Functions.power(tabSin, 2);
-        Function cosSqr = Functions.power(tabCos, 2);
+        System.out.println("\nRj Задание 8.3: Сумма квадратов: sin^2 + cos^2");
+        Function sinSqr = Functions.power(sintab, 2);
+        Function cosSqr = Functions.power(costab, 2);
         Function sumSqr = Functions.sum(sinSqr, cosSqr);
         for (double x = 0; x <= Math.PI; x += 0.1) {
             System.out.printf("x=%.1f, sin^2+cos^2=%.4f\n", x, sumSqr.getFunctionValue(x));
         }
 
         // Задание 8, п.4: Тест - текстовый поток
-        System.out.println("\nЗадание 8.4: Тест write/read (текстовый файл) ");
+        System.out.println("\nЗадание 8.4: Тест write/read, текстовый файл ");
         try {
             TabulatedFunction tabExp = TabulatedFunctions.tabulate(new Exp(), 0, 10, 11);
             
@@ -61,7 +61,7 @@ public class Main {
         // Задание 8, п.5: Тест - байтовый поток
         System.out.println("\nЗадание 8.5: Тест output/input");
         try {
-            TabulatedFunction tabLog = TabulatedFunctions.tabulate(new Log(Math.E), 1, 10, 10);
+            TabulatedFunction tabLog = TabulatedFunctions.tabulate(new Log(Math.E), 0, 10, 10);
             
             // Запись в файл
             OutputStream out = new FileOutputStream("Табулированный-log.dat");
@@ -84,7 +84,7 @@ public class Main {
         }
 
         // Задание 9: Тест Сериализации (Serializable)
-        System.out.println("\nЗадание 9: Тест Сериализации (Сериализация, ArrayTabulatedFunction)");
+        System.out.println("\nЗадание 9: Тест Сериализации, ArrayTabulatedFunction");
         try {
             // log(exp(x)) = x
             Function f = Functions.composition(new Log(Math.E), new Exp());
@@ -137,7 +137,7 @@ public class Main {
             in.close();
 
             // Сравнение
-            System.out.println("Сравнение исходной и десериализованной функции (LinkedList):");
+            System.out.println("Сравнение исходной и десериализованной функции LinkedList:");
             for (double x = 0; x <= 4; x += 0.5) {
                 System.out.printf("x=%.1f, Orig(x)=%.2f, Read(x)=%.2f\n", x, tabFuncLinked.getFunctionValue(x), readFuncLinked.getFunctionValue(x));
             }
@@ -146,33 +146,49 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Добавил отдельный блок
-        System.out.println("\nДоп. тест Externalizable: LinkedList с ln(exp(x))");
+        System.out.println("\nТест Externalizable: LinkedListTabulatedFunction с ln(exp(x))");
         try {
-            java.util.LinkedList<Double> list = new java.util.LinkedList<>();
-            for (double x = -5.0; x <= 5.0; x += 0.5) {
-                list.add(Math.log(Math.exp(x)));
+            // Создает точки для ln(exp(x)) = x на [-5, 5] с шагом 0.5
+            FunctionPoint[] points = new FunctionPoint[21];
+            for (int i = 0; i < 21; i++) {
+                double x = -5.0 + i * 0.5;
+                points[i] = new FunctionPoint(x, Math.log(Math.exp(x)));  // = x
             }
 
+            LinkedListTabulatedFunction tabLnExp = new LinkedListTabulatedFunction(points);
+
+            System.out.println("Исходный LinkedListTabulatedFunction:");
+            for (int i = 0; i < tabLnExp.getPointsCount(); i++) {
+                System.out.printf("Point %d: (%.1f, %.1f)\n",
+                        i, tabLnExp.getPointX(i), tabLnExp.getPointY(i));
+            }
+
+            // Externalizable сериализация функции
             try (ObjectOutputStream out = new ObjectOutputStream(
-                    new FileOutputStream("list-ln-exp.ser"))) {
-                out.writeObject(list);
+                    new FileOutputStream("linkedlist-ln-exp.ser"))) {
+                out.writeObject(tabLnExp);  // ← НАША!
             }
 
-            java.util.LinkedList<Double> readList;
+            // Десериализация функции
+            LinkedListTabulatedFunction readTabLnExp;
             try (ObjectInputStream in = new ObjectInputStream(
-                    new FileInputStream("list-ln-exp.ser"))) {
-                readList = (java.util.LinkedList<Double>) in.readObject();
+                    new FileInputStream("linkedlist-ln-exp.ser"))) {
+                readTabLnExp = (LinkedListTabulatedFunction) in.readObject();  // ← НАША!
             }
 
-            double x = -5.0;
-            for (Double y : readList) {
-                System.out.printf("x = %.6f, ln(exp(x)) = %.6f%n", x, y);
-                x += 0.5;
+            // Проверка ln(exp(x)) = x
+            System.out.println("\nСравнение до и после сериализации:");
+            for (double x = -5.0; x <= 5.0; x += 1.0) {
+                double orig = tabLnExp.getFunctionValue(x);
+                double read = readTabLnExp.getFunctionValue(x);
+                System.out.printf("x=%.1f, Orig=%.6f, Read=%.6f\n",
+                        x, orig, read);
             }
-        } catch (IOException | ClassNotFoundException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
 
     }
 }
