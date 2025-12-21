@@ -4,7 +4,7 @@ import functions.Function;
 public class Log implements Function {
     private double base;
     public Log(double base) {
-        if (base <= 0 || base == 1) throw new IllegalArgumentException("Invalid base");
+        if (base <= 0 || base == 1) throw new IllegalArgumentException("Некорректное основание");
         this.base = base;
     }
     public double getLeftDomainBorder() {
